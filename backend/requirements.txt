@@ -3,7 +3,6 @@ uvicorn
 langgraph
 langchain-anthropic
 langchain-core
-copilotkit
 httpx
 python-dotenv
 pydantic

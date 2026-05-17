@@ -7,6 +7,7 @@ A full-stack analytics dashboard for monitoring Ethereum cross-chain bridge prot
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)
 ![LangGraph](https://img.shields.io/badge/LangGraph-Agent-4B5563?style=flat-square)
 
+
 ---
 
 ## Overview
@@ -17,6 +18,8 @@ A full-stack analytics dashboard for monitoring Ethereum cross-chain bridge prot
 | Backend API | FastAPI, Uvicorn |
 | AI Agent | LangGraph, LangChain Anthropic (Claude Sonnet) |
 | On-chain Data | Etherscan API v2 |
+
+The frontend talks directly to the FastAPI backend (no middleware layer). The LangGraph agent in `backend/agent.py` is available for future conversational features.
 
 Click a bridge button to fetch live on-chain data and render the stats card and Markov chart instantly via the REST API.
 
@@ -36,12 +39,12 @@ Click a bridge button to fetch live on-chain data and render the stats card and 
 xchain-bridge-dashboard/
 ├── backend/
 │   ├── main.py          # FastAPI app + REST endpoints
-│   ├── agent.py         # LangGraph agent + CopilotKit wiring
+│   ├── agent.py         # LangGraph agent (standalone, not wired to frontend)
 │   ├── tools.py         # Etherscan tools (LangChain @tool)
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   │   ├── App.tsx                        # Direct-mode UI
+│   │   ├── App.tsx                        # Main UI — fetches from FastAPI directly
 │   │   ├── components/
 │   │   │   ├── BridgeCard.tsx             # Stats card component
 │   │   │   └── MarkovChart.tsx            # Markov visualization (3 views)
@@ -150,7 +153,7 @@ From the last 50 transactions, consecutive state pairs are counted and normalize
 
 ## AI Agent Architecture
 
-The LangGraph agent runs a simple loop:
+The LangGraph agent (`backend/agent.py`) runs a simple loop:
 
 ```
 agent → (has tool calls?) → tools → agent → … → after_tools → END
@@ -162,7 +165,7 @@ Three LangChain tools are available to the agent:
 - `get_bridge_summary` — wraps the above and computes aggregate stats.
 - `compute_markov_states` — wraps the above and runs the Markov computation.
 
-The agent emits intermediate state (`bridge_card_data`, `markov_data`, `loading`) so the `BridgeCard` and `MarkovChart` components can render progressively as data arrives.
+The agent is standalone and not currently wired to the frontend. The UI fetches data directly from the FastAPI REST endpoints.
 
 ---
 
